@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b3d91">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Century Solution">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>CENTURY SOLUTION v13</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="loginGate" style="display:flex">
+  <div class="login-box">
+    <div class="login-brand">CENTURY SOLUTION</div>
+    <div class="login-sub">v13 · Secure access</div>
+
+    <div id="loginPanel">
+      <label>User ID</label>
+      <input type="text" id="loginId" placeholder="email or user id" autocomplete="username">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" oninput="if(typeof clearLoginError==='function')clearLoginError()">
+      <div id="loginError" class="login-error" style="display:none"></div>
+      <div class="login-actions">
+        <button class="btn-main" style="width:100%;padding:10px" onclick="doLogin()">Login</button>
+      </div>
+      <div class="login-links">
+        <a onclick="showLogin('signup')">Sign up</a>
+        <a onclick="showLogin('forgot')">Forgot password?</a>
+      </div>
+    </div>
+
+    <div id="signupPanel" style="display:none">
+      <label>Full Name *</label>
+      <input id="suName">
+      <label>Designation</label>
+      <input id="suDesig" placeholder="User">
+      <label>User ID (email) *</label>
+      <input id="suId" type="email">
+      <label>Password *</label>
+      <input id="suPass" type="password">
+      <label>Confirm Password *</label>
+      <input id="suPass2" type="password">
+      <label>Security Question *</label>
+      <select id="suQuestion"></select>
+      <label>Answer *</label>
+      <input id="suAnswer" placeholder="Remember this answer">
+      <div class="login-actions">
+        <button class="btn-main" style="width:100%" onclick="doSignup()">Create Account</button>
+      </div>
+      <div class="login-links"><a onclick="showLogin('login')">← Back to Login</a></div>
+    </div>
+
+    <div id="forgotPanel" style="display:none">
+      <p style="font-size:.78rem;color:#64748b;margin-bottom:8px">Enter your User ID to reset via security question.</p>
+      <label>User ID</label>
+      <input id="fpId">
+      <div class="login-actions">
+        <button class="btn-main" style="width:100%" onclick="startForgot()">Continue</button>
+      </div>
+      <div class="login-links"><a onclick="showLogin('login')">← Back to Login</a></div>
+    </div>
+
+    <div id="resetPanel" style="display:none">
+      <label>Security Question</label>
+      <div id="fpQLabel" style="font-size:.85rem;font-weight:600;margin-bottom:8px;color:#0b3d91"></div>
+      <label>Your Answer *</label>
+      <input id="fpAnswer">
+      <label>New Password *</label>
+      <input id="fpNewPass" type="password">
+      <label>Confirm New Password *</label>
+      <input id="fpNewPass2" type="password">
+      <div class="login-actions">
+        <button class="btn-main" style="width:100%" onclick="doResetPassword()">Reset Password</button>
+      </div>
+      <div class="login-links"><a onclick="showLogin('login')">← Back to Login</a></div>
+    </div>
+  </div>
+</div>
+<div id="authToast"></div>
+
+<div id="app" style="display:none">
+  <div class="mobile-bar">
+    <button type="button" class="menu-toggle" id="menuToggle" onclick="toggleMobileNav()" aria-label="Menu">☰</button>
+    <div class="mobile-brand">CENTURY SOLUTION</div>
+    <div class="global-search-wrap" style="flex:1;max-width:none;margin:0 8px">
+      <input type="search" id="globalSearch" placeholder="Search clients, orders, docs…" oninput="runGlobalSearch(this.value)" onfocus="runGlobalSearch(this.value)" autocomplete="off">
+      <div id="globalSearchResults"></div>
+    </div>
+    <button type="button" class="menu-toggle" onclick="doLogout()" title="Logout" style="font-size:.75rem">⎋</button>
+  </div>
+  <div class="nav-backdrop" id="navBackdrop" onclick="closeMobileNav()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">CS</div>
+      <div class="logo-text">CENTURY<br><span>SOLUTION</span></div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn active" data-view="dashboard" onclick="showView('dashboard')"><span class="nav-icon">▣</span> Dashboard</button>
+
+      <div class="nav-group">
+        <button type="button" class="nav-group-btn" onclick="toggleNavGroup(this)" data-group="create">
+          <span class="nav-icon">✎</span> Create Document <span class="nav-caret">▾</span>
+        </button>
+        <div class="nav-sub">
+          <button class="nav-btn sub" data-view="create" onclick="openCreateDoc('offer')"><span class="nav-icon">·</span> Offer</button>
+          <button class="nav-btn sub" data-view="create" onclick="openCreateDoc('po')"><span class="nav-icon">·</span> PO</button>
+          <button class="nav-btn sub" data-view="create" onclick="openCreateDoc('pi')"><span class="nav-icon">·</span> PI</button>
+          <button class="nav-btn sub" data-view="orders" onclick="showView('orders')"><span class="nav-icon">·</span> Orders</button>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button type="button" class="nav-group-btn" onclick="toggleNavGroup(this)" data-group="contacts">
+          <span class="nav-icon">👥</span> Contacts <span class="nav-caret">▾</span>
+        </button>
+        <div class="nav-sub">
+          <button class="nav-btn sub" data-view="clients" onclick="showView('clients')"><span class="nav-icon">·</span> Clients</button>
+          <button class="nav-btn sub" data-view="vendors" onclick="showView('vendors')"><span class="nav-icon">·</span> Vendors</button>
+          <button class="nav-btn sub" data-view="employees" onclick="showView('employees')"><span class="nav-icon">·</span> Employees</button>
+        </div>
+      </div>
+
+      <div class="nav-group" data-sp-nav>
+        <button type="button" class="nav-group-btn" onclick="toggleNavGroup(this)">
+          <span class="nav-icon">⚡</span> Site Projects <span class="nav-caret">▾</span>
+        </button>
+        <div class="nav-sub">
+          <button class="nav-btn sub" data-view="sp-engineers" data-sp-nav onclick="showView('sp-engineers')"><span class="nav-icon">·</span> Site Engineers</button>
+        </div>
+      </div>
+
+      <button class="nav-btn" data-view="reports" onclick="showView('reports')"><span class="nav-icon">☰</span> MIS</button>
+      <button class="nav-btn" data-view="masters" onclick="showView('masters')"><span class="nav-icon">▦</span> Masters</button>
+      <button class="nav-btn" data-view="settings" onclick="showView('settings')"><span class="nav-icon">⚙</span> Settings</button>
+    </nav>
+    <div class="sidebar-foot">
+      <button type="button" class="btn-logout" onclick="doLogout()">Logout</button>
+      <div class="sig-mini" id="sidebarSig">Husain Abbas</div>
+      <div class="sig-role" id="sidebarRole">Century Solution</div>
+      <div class="sig-ver" id="sidebarVer">CENTURY SOLUTION · v13</div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="content">
+    <!-- CREATE VIEW -->
+    
+    <div id="view-dashboard" class="view active">
+      <div class="page-head" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div><h2>Dashboard</h2><span class="hint-inline" id="dashDate"></span></div>
+        <div class="global-search-wrap" style="display:none" id="deskSearchWrap">
+          <input type="search" id="globalSearchDesk" placeholder="Search clients, orders, docs…" oninput="document.getElementById('globalSearch').value=this.value;runGlobalSearch(this.value)" autocomplete="off">
+        </div>
+      </div>
+      <div class="page-body">
+        <div class="block" id="dashCompanyCard" style="background:linear-gradient(135deg,#0b3d91,#072a66);color:#fff;border:none;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start">
+            <div>
+              <div style="font-family:Century Gothic,sans-serif;font-weight:700;font-size:1.15rem;letter-spacing:.5px">CENTURY SOLUTION</div>
+              <div id="dashCompanyAddr" style="font-size:.78rem;opacity:.92;margin-top:6px;line-height:1.45;white-space:pre-line"></div>
+              <div id="dashCompanyContact" style="font-size:.75rem;opacity:.88;margin-top:6px"></div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:.65rem;opacity:.7;text-transform:uppercase;letter-spacing:.4px">Logged in as</div>
+              <div id="dashUserName" style="font-weight:700;font-size:.95rem;margin-top:2px">—</div>
+              <div id="dashUserDesig" style="font-size:.75rem;opacity:.85"></div>
+              <div id="dashUserContact" style="font-size:.7rem;opacity:.8;margin-top:4px"></div>
+            </div>
+          </div>
+        </div>
+        <div class="dash-grid" id="dashCards"></div>
+        <div class="two-col" style="margin-top:12px">
+          <div class="block">
+            <div class="block-title">Live Orders</div>
+            <div id="dashLiveOrders"></div>
+          </div>
+          <div class="block">
+            <div class="block-title">Recent Offers / PO / PI</div>
+            <div id="dashRecentDocs"></div>
+          </div>
+        </div>
+        <div class="block" style="margin-top:10px">
+          <div class="block-title">Quick Actions</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <button class="btn-main" onclick="showView('create');setDocType('offer')">New Offer</button>
+            <button class="btn-sm" onclick="showView('create');setDocType('po')">New PO</button>
+            <button class="btn-sm" onclick="showView('create');setDocType('pi')">New PI</button>
+            <button class="btn-sm" onclick="showView('orders');openOrderForm()">New Order</button>
+            <button class="btn-sm" onclick="showView('reports')">MIS</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-orders" class="view">
+      <div class="page-head">
+        <h2>Orders</h2>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <select id="ordFilter" onchange="renderOrdersList()">
+            <option value="live">Live (In Progress)</option>
+            <option value="all">All Orders</option>
+            <option value="completed">Completed</option>
+            <option value="delayed">Delayed</option>
+          </select>
+          <button class="btn-ghost dark" onclick="exportOrdersExcel()">⬇ Orders Excel</button>
+          <button class="btn-ghost dark" onclick="exportTrackingExcel()">⬇ Tracking Sheet Excel</button>
+          <label class="btn-sm" style="cursor:pointer">⬆ Upload Orders Excel<input type="file" accept=".xlsx,.xls,.csv" hidden onchange="importOrdersExcel(event)"></label>
+          <button class="btn-main" onclick="openOrderForm()">+ New Order</button>
+        </div>
+      </div>
+      <div class="page-body">
+        <div id="ordersList"></div>
+      </div>
+    </div>
+
+    <div id="view-create" class="view">
+      <!-- TOP STRIP -->
+      <div class="top-strip">
+        <div class="doc-type-group">
+          <button class="dtype active" data-t="offer" onclick="setDocType('offer')">OFFER</button>
+          <button class="dtype" data-t="po" onclick="setDocType('po')">PO</button>
+          <button class="dtype" data-t="pi" onclick="setDocType('pi')">PI</button>
+        </div>
+        <div class="top-right">
+          <button class="btn-ghost" onclick="resetAll()">Clear</button>
+          <button class="btn-main" onclick="openPreview()">Preview &amp; Export →</button>
+        </div>
+      </div>
+
+      <!-- SCROLLABLE BODY -->
+      <div class="create-body">
+<!-- STEP 1: SCOPES -->
+        <div class="block">
+          <div class="block-title"><span class="step">1</span> Work Scope <span class="hint-inline">(select one or more)</span></div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><div class="chips" id="scopeChips"></div><button type="button" class="btn-xs" onclick="if(typeof addScopePrompt==='function')addScopePrompt()" title="Add custom scope">＋</button></div>
+        </div>
+
+        <!-- STEP 2: DETAILS -->
+        <div class="block two-col">
+          <div>
+            <div class="block-title"><span class="step">2</span> Document Details</div>
+            <div class="form-grid">
+              <div class="fg">
+                <label id="lblRef">Offer Ref. No.</label>
+                <input type="text" id="refNo">
+              </div>
+              <div class="fg">
+                <label>Date</label>
+                <input type="date" id="docDate">
+              </div>
+              <div class="fg">
+                <label>Validity (Days)</label>
+                <input type="number" id="validity" value="30" min="1">
+              </div>
+              <div class="fg">
+                <label>Project</label>
+                <input type="text" id="project" placeholder="Project name">
+              </div>
+              <div class="fg full">
+                <label>Subject</label>
+                <input type="text" id="subject" placeholder="Subject line" oninput="this.dataset.auto='0'">
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="block-title"><span class="step">3</span> Client</div>
+            <div class="form-grid">
+              <div class="fg full">
+                <label>Company Name
+                  <button type="button" class="btn-xs" onclick="pickFromCRM('clients')" style="margin-left:6px">From Clients</button>
+                  <button type="button" class="btn-xs" onclick="pickFromCRM('vendors')" style="margin-left:4px">From Vendors</button>
+                </label>
+                <input type="text" id="clientName" placeholder="Client / Vendor company" oninput="autoSubject()" list="clientDatalist">
+                <datalist id="clientDatalist"></datalist>
+              </div>
+              <div class="fg full">
+                <label>Kind Attn / Contact</label>
+                <input type="text" id="clientContact" placeholder="Name, Designation">
+              </div>
+              <div class="fg full">
+                <label>Address</label>
+                <textarea id="clientAddress" rows="2" placeholder="Full address"></textarea>
+              </div>
+              <div class="fg">
+                <label>Mobile 1</label>
+                <input type="text" id="clientPhone" placeholder="Primary mobile">
+              </div>
+              <div class="fg">
+                <label>Mobile 2</label>
+                <input type="text" id="clientPhone2" placeholder="Alternate mobile">
+              </div>
+              <div class="fg">
+                <label>Email</label>
+                <input type="text" id="clientEmail">
+              </div>
+              <div class="fg">
+                <label>GSTIN</label>
+                <input type="text" id="clientGST" placeholder="Client GST No.">
+              </div>
+            </div>
+            <div id="consigneeBlock" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)">
+              <div style="font-weight:700;font-size:.78rem;margin-bottom:6px;color:var(--blue)">Consignee Address (PO / PI)</div>
+              <div class="form-grid">
+                <div class="fg full"><label>Consignee Name</label><input type="text" id="consigneeName" placeholder="Consignee company / name"></div>
+                <div class="fg full"><label>Consignee Address</label><textarea id="consigneeAddress" rows="2" placeholder="Ship-to / delivery address"></textarea></div>
+                <div class="fg"><label>Mobile 1</label><input type="text" id="consigneePhone"></div>
+                <div class="fg"><label>Mobile 2</label><input type="text" id="consigneePhone2"></div>
+                <div class="fg full"><label>Consignee GSTIN</label><input type="text" id="consigneeGST" placeholder="Consignee GST No."></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 4: LINE ITEMS -->
+        <div class="block">
+          <div class="block-title">
+            <span><span class="step">4</span> Line Items</span>
+            <div class="title-actions" id="addButtons">
+              <!-- filled by JS based on selected scopes -->
+            </div>
+          </div>
+
+          <div class="items-empty" id="itemsEmpty">
+            <div class="empty-icon">📋</div>
+            <p>No items yet. Click a button above to add.</p>
+          </div>
+
+          <div class="items-list" id="itemsList"></div>
+          <div id="sowPkgPreview" style="display:none;margin-top:12px;padding:12px;background:#f0f6ff;border:1px solid #c7d9f5;border-radius:8px">
+            <div style="font-weight:700;color:#0047AB;margin-bottom:8px;font-size:.85rem">Schedule of Work (from SOW packages)</div>
+            <div id="sowPkgContent"></div>
+          </div>
+
+          <!-- TAXES + TOTAL -->
+          <div class="bottom-bar" id="bottomBar" style="display:none">
+            <div class="tax-area">
+              <span class="tax-label">Taxes:</span>
+              <div id="taxChips"></div>
+              <button class="btn-xs" onclick="addTax()">+ Tax</button>
+            </div>
+            <div class="totals-area">
+              <div class="tot-line"><span>Sub Total</span><strong id="vSub">₹ 0</strong></div>
+              <div class="tot-line"><span>Discount</span><strong id="vDisc">₹ 0</strong></div>
+              <div class="tot-line" id="vTaxLines"></div>
+              <div class="tot-line grand"><span>Grand Total</span><strong id="vGrand">₹ 0</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 5: T&C + LANGUAGE -->
+        <div class="block two-col">
+          <div>
+            <div class="block-title"><span class="step">5</span> Terms &amp; Conditions <span class="hint-inline" id="tcCount"></span></div>
+            <p class="hint-inline" style="margin-bottom:6px">Auto-selected based on Work Scope. Tick/untick as needed.</p>
+            <div class="tc-box" id="tcBox"></div>
+            <button class="btn-sm" style="margin-top:8px" onclick="addTC()">+ Add Clause</button>
+          </div>
+          <div>
+            <div class="block-title">Language &amp; Signatory</div>
+            <label>Opening text</label>
+            <textarea id="introText" rows="3"></textarea>
+            <label>Closing text</label>
+            <textarea id="closeText" rows="2"></textarea>
+            <div class="form-grid" style="margin-top:8px">
+              <div class="fg"><label>Signatory Name</label><input id="sigName" value=""></div>
+              <div class="fg"><label>Designation</label><input id="sigDesig" value=""></div>
+              <div class="fg"><label>Mobile 1</label><input id="sigMobile" value=""></div>
+              <div class="fg"><label>Mobile 2</label><input id="sigMobile2" value=""></div>
+              <div class="fg full"><label>Email</label><input id="sigEmail" value=""></div>
+            </div>
+            <div class="form-grid" style="margin-top:8px">
+              <div class="fg full"><label>Our Company Address</label><textarea id="ourAddress" rows="3"></textarea></div>
+              <div class="fg"><label>Phone 1</label><input id="ourPhone"></div>
+              <div class="fg"><label>Phone 2</label><input id="ourPhone2"></div>
+              <div class="fg"><label>Email</label><input id="ourEmail"></div>
+              <div class="fg"><label>GSTIN</label><input id="ourGST"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Schedule optional -->
+        
+        <div class="block">
+          <div class="block-title">
+            <span>Custom Sections <span class="hint-inline">(set Serial No. for print · tables · above/below prices)</span></span>
+            <button class="btn-sm" onclick="addNoteBlock()">+ Add Section</button>
+          </div>
+          <div id="notesBlocks"></div>
+        </div>
+        <div class="block" id="sitcBlock" style="display:none">
+          <div class="block-title">
+            <span>SITC / Custom Work Scope <span class="hint-inline">(shown separately in offer)</span></span>
+            <button class="btn-sm" onclick="addSitcPoint()">+ Point</button>
+          </div>
+          <div id="sitcList"></div>
+        </div>
+
+        <div class="block" id="schedBlock">
+          <div class="block-title">
+            <span>Time Schedule <span class="hint-inline">(optional)</span></span>
+            <button class="btn-sm" onclick="addSched()">+ Row</button> <button type="button" class="btn-xs" onclick="pushScheduleToProject()">Link to Site Project</button>
+          </div>
+          <div id="schedList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORTS VIEW -->
+<div id="view-reports" class="view">
+      <div class="page-head">
+        <h2>MIS / Reports</h2>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <label class="btn-sm" style="cursor:pointer">⬆ Import Live Enq MIS<input type="file" accept=".xlsx,.xls,.csv" hidden onchange="importOfferMIS(event)"></label>
+          <label class="btn-sm" style="cursor:pointer">⬆ Import PO Excel<input type="file" accept=".xlsx,.xls,.csv" hidden onchange="importPOExcel(event)"></label>
+          <button class="btn-ghost dark" onclick="exportReport()">⬇ Export Excel</button>
+          <button class="btn-main" onclick="exportMISFull()">⬇ Full MIS Excel</button>
+        </div>
+      </div>
+      <div class="page-body">
+        <div class="filter-row">
+          <select id="repType" onchange="renderReports()">
+            <option value="">All Types</option>
+            <option value="offer">Offer</option>
+            <option value="po">PO</option>
+            <option value="pi">PI</option>
+          </select>
+          <input type="text" id="repQ" placeholder="Search…" oninput="renderReports()">
+        </div>
+        <p class="hint-inline" style="margin-bottom:8px;display:block">Missing fields (End Client, Enq Date, Enq Type…) can be filled here — always saved.</p>
+        <div style="overflow:auto">
+        <table class="rpt-table" id="rptTable">
+          <thead><tr>
+              <th>#</th><th>Offer / Ref No</th><th>Client</th><th>End Client</th><th>Project</th><th>Amount</th><th>Status</th><th></th>
+            </tr></thead>
+          <tbody id="rptBody"></tbody>
+        </table>
+        </div>
+        <p class="empty-msg" id="rptEmpty">No saved documents yet.</p>
+      </div>
+    </div>
+
+    <!-- CLIENTS VIEW -->
+    <div id="view-clients" class="view">
+      <div class="page-head">
+        <h2>Clients</h2>
+        <div style="display:flex;gap:6px">
+          <button class="btn-ghost dark" onclick="exportCRM('clients')">⬇ Excel</button>
+          <label class="btn-sm" style="cursor:pointer">⬆ Import<input type="file" accept=".xlsx,.xls,.csv" hidden onchange="importCRM('clients',event)"></label>
+          <button class="btn-main" onclick="openCRMForm('clients')">+ Add Client</button>
+        </div>
+      </div>
+      <div class="page-body">
+        <div class="filter-row" style="margin-bottom:8px;align-items:center">
+          <input type="text" id="clientSearch" placeholder="Search…" oninput="renderCRM('clients')" style="max-width:180px">
+          <select id="clientCityFilter" onchange="renderCRM('clients')" style="max-width:160px">
+            <option value="">All cities</option>
+          </select>
+          <label style="font-size:.72rem;display:flex;align-items:center;gap:4px;color:var(--muted)">
+            <input type="checkbox" id="clientGroupCity" onchange="renderCRM('clients')"> City-wise
+          </label>
+        </div>
+        <div id="clientsList"></div>
+      </div>
+    </div>
+
+    <!-- VENDORS VIEW -->
+    <div id="view-vendors" class="view">
+      <div class="page-head">
+        <h2>Vendors</h2>
+        <div style="display:flex;gap:6px">
+          <button class="btn-ghost dark" onclick="exportCRM('vendors')">⬇ Excel</button>
+          <label class="btn-sm" style="cursor:pointer">⬆ Import<input type="file" accept=".xlsx,.xls,.csv" hidden onchange="importCRM('vendors',event)"></label>
+          <label class="btn-sm" style="cursor:pointer">⬆ Upload Registration Form<input type="file" accept=".xlsx,.xls,.csv,.doc,.docx,.pdf,.txt" hidden onchange="importVendorRegForm(event)"></label>
+          <button class="btn-main" onclick="openCRMForm('vendors')">+ Add Vendor</button>
+        </div>
+      </div>
+      <div class="page-body">
+        <div class="filter-row" style="margin-bottom:8px;align-items:center">
+          <input type="text" id="vendorSearch" placeholder="Search…" oninput="renderCRM('vendors')" style="max-width:180px">
+          <select id="vendorCityFilter" onchange="renderCRM('vendors')" style="max-width:160px">
+            <option value="">All cities</option>
+          </select>
+          <label style="font-size:.72rem;display:flex;align-items:center;gap:4px;color:var(--muted)">
+            <input type="checkbox" id="vendorGroupCity" onchange="renderCRM('vendors')"> City-wise
+          </label>
+        </div>
+        <div id="vendorsList"></div>
+      </div>
+    </div>
+
+    <!-- MASTERS VIEW -->
+        
+    <div id="view-employees" class="view">
+      <div class="page-head">
+        <h2>Employees</h2>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <label class="btn-sm" style="cursor:pointer">Import Excel<input type="file" accept=".xlsx,.xls,.csv" hidden onchange="importEmployees(event)"></label>
+          <button class="btn-sm" onclick="reseedCompanyEmployees()" title="Load built-in company roster">Load Company Roster</button>
+          <button class="btn-sm" onclick="exportEmployees()">Export Excel</button>
+          <button class="btn-sm" onclick="sortEmployeesAlpha()">Sort A–Z</button>
+          <button class="btn-main" onclick="openEmployeeForm()">+ Add Employee</button>
+        </div>
+      </div>
+      <div class="page-body">
+        <div class="filter-row">
+          <input id="empQ" placeholder="Search code, name, dept…" oninput="renderEmployees()" style="max-width:220px">
+          <select id="empDeptFilter" onchange="renderEmployees()" style="max-width:160px">
+            <option value="">All departments</option>
+          </select>
+        </div>
+        <div class="crm-list">
+          <div class="crm-row crm-head">
+            <div>Code</div><div>Name</div><div>Department</div><div>Contact</div><div>Actions</div>
+          </div>
+          <div id="empListBody"></div>
+        </div>
+        <div id="empEmpty" class="empty-msg" style="display:none">No employees yet</div>
+      </div>
+    </div>
+
+
+    
+    <div id="view-sp-engineers" class="view">
+      <div class="page-head">
+        <h2>Site Engineers</h2>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn-sm" onclick="generateAllPEReport()">⬇ Team PE Report</button>
+          <button class="btn-main" onclick="openAddEngineerFromEmp()">+ From Employees</button>
+        </div>
+      </div>
+      <div class="page-body">
+        <div class="filter-row">
+          <input id="spEngQ" placeholder="Search engineer…" oninput="renderSiteEngineers()" style="max-width:220px">
+        </div>
+        <div class="block" style="background:linear-gradient(135deg,#0b3d91,#072a66);color:#fff;border:none;margin-bottom:10px;padding:10px 12px">
+          <div style="font-size:.78rem;font-weight:600">Site Project Management</div>
+          <div style="font-size:.72rem;opacity:.9;margin-top:4px">Engineer → Projects → Daily reports · Progress · Near miss · Material · PE (85% salary threshold). Office allots projects; site engineers fill daily work.</div>
+        </div>
+        <div id="spEngList"></div>
+      </div>
+    </div>
+
+    <div id="view-sp-projects" class="view">
+      <div class="page-head">
+        <div>
+          <button class="btn-xs" onclick="showView('sp-engineers')">← Engineers</button>
+          <h2 id="spProjTitle" style="display:inline;margin-left:8px">Projects</h2>
+          <div id="spProjSub" class="hint-inline"></div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <input type="hidden" id="spProjEngId">
+          <button class="btn-main" id="spAddProjBtn" onclick="openProjectForm()">+ Allot Project</button>
+        </div>
+      </div>
+      <div class="page-body"><div id="spProjList"></div></div>
+    </div>
+
+    <div id="view-sp-hub" class="view">
+      <div class="page-head">
+        <div>
+          <button class="btn-xs" onclick="openEngineerProjects(document.getElementById('spProjEngId')?.value||_spEngId)">← Projects</button>
+          <h2 id="spHubTitle" style="display:inline;margin-left:8px">Project</h2>
+          <div id="spHubSub" class="hint-inline"></div>
+          <input type="hidden" id="spHubProjId">
+        </div>
+      </div>
+      <div class="c360-tabs" style="background:#fff;border-bottom:1px solid var(--line);overflow-x:auto;flex-wrap:nowrap">
+        <button type="button" data-hub="overview" class="active" onclick="switchHubTab('overview')">Overview</button>
+        <button type="button" data-hub="daily" onclick="switchHubTab('daily')">Daily</button>
+        <button type="button" data-hub="progress" onclick="switchHubTab('progress')">Progress</button>
+        <button type="button" data-hub="nearmiss" onclick="switchHubTab('nearmiss')">Near Miss</button>
+        <button type="button" data-hub="material" onclick="switchHubTab('material')">Material</button>
+        <button type="button" data-hub="expense" onclick="switchHubTab('expense')">Expense</button>
+        <button type="button" data-hub="tools" onclick="switchHubTab('tools')">Tools</button>
+        <button type="button" data-hub="quality" onclick="switchHubTab('quality')">Quality</button>
+        <button type="button" data-hub="completion" onclick="switchHubTab('completion')">Completion</button>
+        <button type="button" data-hub="billing" onclick="switchHubTab('billing')">Billing</button>
+        <button type="button" data-hub="closure" onclick="switchHubTab('closure')">Closure</button>
+      </div>
+      <div class="page-body">
+        <div id="spHub-overview"></div>
+        <div id="spHub-daily" style="display:none"></div>
+        <div id="spHub-progress" style="display:none"></div>
+        <div id="spHub-nearmiss" style="display:none"></div>
+        <div id="spHub-material" style="display:none"></div>
+        <div id="spHub-expense" style="display:none"></div>
+        <div id="spHub-tools" style="display:none"></div>
+        <div id="spHub-quality" style="display:none"></div>
+        <div id="spHub-completion" style="display:none"></div>
+        <div id="spHub-billing" style="display:none"></div>
+        <div id="spHub-closure" style="display:none"></div>
+      </div>
+    </div>
+
+<div id="view-masters" class="view">
+      <div class="page-head">
+        <h2>Masters</h2>
+        <span class="hint-inline">View only — add / edit from Settings</span>
+      </div>
+      <div class="page-body">
+        <div class="master-cards">
+          <div class="mcard" id="masterPanelScopes">
+            <h3>Work Scopes</h3>
+            <div class="master-scroll" id="masterScopes"></div>
+            <div id="scopeMapList" style="margin-top:8px;font-size:.7rem;color:var(--muted)"></div>
+          </div>
+          <div class="mcard" id="masterPanelCats">
+            <h3>Categories (<span id="catCount">0</span>)</h3>
+            <div class="master-scroll" id="masterCats"></div>
+          </div>
+          <div class="mcard" id="masterPanelSOW" style="grid-column:1/-1">
+            <h3>SOW Equipment</h3>
+            <div class="master-scroll" id="masterSOW" style="max-height:200px"></div>
+          </div>
+          <div class="mcard" id="masterPanelItems" style="grid-column:1/-1">
+            <h3>Item Master</h3>
+            <p class="big-num" id="itemCount">0</p>
+            <p class="hint-inline">Searchable when adding line items on Sales Desk</p>
+            <button class="btn-main" style="margin-top:10px" onclick="downloadItemMaster()">⬇ Download Item Master (Excel)</button>
+            <button class="btn-ghost dark" style="margin-top:6px" onclick="downloadScopesMaster()">⬇ Download Scopes &amp; Mapping</button>
+            <button class="btn-ghost dark" style="margin-top:6px" onclick="downloadSOWMaster()">⬇ Download SOW List</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="view-settings" class="view">
+      <div class="page-head">
+        <h2>Settings</h2>
+        <button class="btn-ghost dark" onclick="doLogout()">Logout</button>
+      </div>
+      <div class="page-body">
+        <div class="block" id="helpLayman">
+          <div class="block-title">How to use (quick guide)</div>
+          <div style="font-size:.78rem;line-height:1.55;color:var(--text)">
+            <p style="margin:0 0 8px"><b>1. Login</b> — User ID + Password (Admin: husain@centurysolution.co.in).</p>
+            <p style="margin:0 0 8px"><b>2. Host online (free)</b> — Cloudflare Pages or Netlify: upload this folder. See <code>CLOUDFLARE_GUIDE.txt</code>.</p>
+            <p style="margin:0 0 8px"><b>3. Shared users</b> — put Supabase URL + anon key in <code>config.js</code>, redeploy, then Settings → Push.</p>
+            <p style="margin:0 0 8px"><b>4. Other devices</b> — open the same site link and login with the user ID created by Admin.</p>
+            <p style="margin:0 0 8px"><b>5. One computer only</b> — you can also open <code>index.html</code> locally without hosting.</p>
+            <p style="margin:0;color:var(--muted)">Full steps: CLOUDFLARE_GUIDE.txt</p>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-title">Cloud &amp; Team Share (v13)</div>
+          <p class="hint-inline" style="display:block;margin-bottom:8px">Your data is saved in this browser. <b>Export Team Package</b> creates a file — store it on Google Drive / OneDrive / your server. Others can <b>Import</b> it and view the same data with their login.</p>
+          <div class="form-grid">
+            <div class="fg full"><label>Shared package URL (Google Drive direct / server / OneDrive)</label>
+              <input id="cloudSyncUrl" placeholder="https://…/CENTURY_SOLUTION_package.json">
+            </div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+            <button class="btn-main" onclick="exportTeamPackage()">⬇ Export Team Package</button>
+            <label class="btn-sm" style="cursor:pointer">⬆ Import Team Package<input type="file" accept=".json,application/json" hidden onchange="importTeamPackage(event)"></label>
+            <button class="btn-sm" onclick="pullFromCloudUrl()">☁ Pull from URL</button>
+          </div>
+          <p class="hint-inline" style="display:block;margin-top:8px;font-size:.68rem">Drive tip: Upload JSON → Share → anyone with link → use a direct-download link. Server: host the JSON on HTTPS.</p>
+        </div>
+        
+        <div class="block" data-admin-only>
+          <div class="block-title">Shared Database (Supabase — Free)</div>
+          <p class="hint-inline" style="display:block;margin-bottom:8px"><b>Cloudflare Pages / Netlify:</b> host the folder online, set Supabase URL + key in <code>config.js</code>, redeploy, then Push. See <code>CLOUDFLARE_GUIDE.txt</code>.</p>
+          <div id="cloudDbStatus" style="font-size:.75rem;margin-bottom:8px"></div>
+          <div class="form-grid">
+            <div class="fg full"><label>Supabase Project URL</label>
+              <input id="sbUrl" placeholder="https://xxxx.supabase.co">
+            </div>
+            <div class="fg full"><label>Supabase anon public key</label>
+              <input id="sbKey" placeholder="eyJhbGciOi…">
+            </div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+            <button class="btn-sm" onclick="saveCloudSettingsFromForm()">Save Cloud Settings</button>
+            <button class="btn-sm" onclick="downloadConfigJs()">⬇ Download config.js (for Netlify Drop)</button>
+            <button class="btn-main" onclick="uiCloudPush()">☁ Push (Upload data)</button>
+            <button class="btn-sm" onclick="uiCloudPull()">☁ Pull (Download data)</button>
+          </div>
+          <p class="hint-inline" style="display:block;margin-top:8px;font-size:.68rem"><b>Login on another device:</b> (1) Save URL+key here (2) <b>Push</b> (3) put the same URL+key in <code>config.js</code> and <b>re-upload</b> the folder to Netlify (4) Push after creating each new user. Then login works on other devices.</p>
+        </div>
+
+        <div class="block">
+          <div class="block-title">Data Backup &amp; Restore</div>
+          <p class="hint-inline" style="display:block;margin-bottom:8px">All data stays in this browser until you clear it. Download a full backup regularly. Restore anytime.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <button class="btn-main" onclick="exportFullBackup()">⬇ Download Full Backup</button>
+            <label class="btn-sm" style="cursor:pointer">⬆ Restore Backup<input type="file" accept=".json,application/json" hidden onchange="importFullBackup(event)"></label>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-title">Signatory / User Profile</div>
+          <p class="hint-inline" style="display:block;margin-bottom:8px">Used on offer documents. Left sidebar name is tied to login ID — only Admin can change it.</p>
+          <button class="btn-main" onclick="openSettings()">Edit Name &amp; Designation</button>
+        </div>
+        <div class="block">
+          <div class="block-title">Change Password</div>
+          <div class="form-grid">
+            <div class="fg"><label>Current Password</label><input type="password" id="chgCurPass"></div>
+            <div class="fg"><label>New Password</label><input type="password" id="chgNewPass"></div>
+            <div class="fg full"><label>Confirm New Password</label><input type="password" id="chgNewPass2"></div>
+          </div>
+          <button class="btn-sm" style="margin-top:8px" onclick="changeOwnPassword()">Update Password</button>
+        </div>
+        <div class="block" data-admin-only>
+          <div class="block-title">Company Profile</div>
+          <p class="hint-inline" style="display:block;margin-bottom:8px">Address, phones, email, GST — used on all documents</p>
+          <button class="btn-sm" onclick="openCompanySettings()">Edit Company Details</button>
+        </div>
+        <div class="block" data-admin-only>
+          <div class="block-title">Masters — Add / Manage</div>
+          <p class="hint-inline" style="display:block;margin-bottom:10px">Opens Masters page, then Add popup</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <button class="btn-sm" onclick="settingsAddMaster('scope')">+ Work Scope</button>
+            <button class="btn-sm" onclick="settingsAddMaster('mapping')">+ Scope Mapping</button>
+            <button class="btn-sm" onclick="settingsAddMaster('category')">+ Category</button>
+            <button class="btn-sm" onclick="settingsAddMaster('sow')">+ SOW Equipment</button>
+            <button class="btn-sm" onclick="settingsAddMaster('item')">+ Item Master</button>
+            <button class="btn-sm" onclick="settingsAddMaster('itemimport')">⬆ Import Items Excel</button>
+          </div>
+        </div>
+        <div class="block" id="userMgmtBlock" data-admin-only>
+          <div class="block-title">User Management (Admin)</div>
+          <p class="hint-inline" style="display:block;margin-bottom:8px">Create users who can login with limited access</p>
+          <div class="form-grid">
+            <div class="fg full"><label>From Employees</label>
+              <input type="hidden" id="admUserEmpId">
+              <button type="button" class="btn-sm" onclick="openUserEmpPicker()">📋 Select from Employee Contacts…</button>
+              <p class="hint-inline" style="display:block;margin-top:2px">Opens employee list — pick one to auto-fill name, email, designation.</p>
+            </div>
+            <div class="fg"><label>Full Name *</label><input id="admUserName"></div>
+            <div class="fg"><label>Designation</label><input id="admUserDesig" placeholder="User" list="dlDesig"></div>
+            <div class="fg"><label>User ID *</label><input id="admUserId" placeholder="email@..."></div>
+            <div class="fg"><label>Password *</label><input id="admUserPass" type="password"></div>
+            <div class="fg full"><label>Reports to</label>
+              <select id="admUserReportsTo"><option value="">— Select reporting manager —</option></select>
+            </div>
+            <div class="fg full"><label>Role *</label>
+              <select id="admUserRole" onchange="document.getElementById('admQuotaWrap').style.display=(this.value==='admin'&&typeof isSuperAdmin==='function'&&isSuperAdmin())?'block':'none'">
+                <option value="user">User — limited access</option>
+                <option value="admin">Admin — full powers</option>
+                <option value="site_worker">Site Engineer — field login</option>
+              </select>
+            </div>
+            <div class="fg full"><label>Security Question</label>
+              <select id="admUserQ">
+                <option>What is your favourite city?</option>
+                <option>What is your first school name?</option>
+                <option>What is your pet name?</option>
+                <option>What is your mother&#39;s maiden name?</option>
+                <option>In which city were you born?</option>
+              </select>
+            </div>
+            <div class="fg full"><label>Answer *</label><input id="admUserAns"></div>
+          </div>
+          <div class="fg full" id="admQuotaWrap" style="display:none">
+            <label>User creation limit for this Admin</label>
+            <input type="number" id="admUserQuota" min="0" max="500" value="5" placeholder="Max users this admin can create">
+            <p class="hint-inline" style="display:block;margin-top:4px">Only you (super admin) can set this. Leave 0 for unlimited.</p>
+          </div>
+          <button class="btn-main" style="margin-top:8px" onclick="adminCreateUser()">Create User</button>
+          <div style="margin-top:12px;font-weight:700;font-size:.78rem">Existing Users</div>
+          <div id="adminUserList"></div>
+        </div>
+        <div class="block">
+          <div class="block-title">Manage dropdown lists</div>
+          <p class="hint-inline" style="display:block;margin-bottom:8px">Add or remove options used in forms across the app.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <button class="btn-sm" onclick="openListEditor('designations','Designations')">Designations</button>
+            <button class="btn-sm" onclick="openListEditor('departments','Departments')">Departments</button>
+            <button class="btn-sm" onclick="openListEditor('qualifications','Qualifications')">Qualifications</button>
+            <button class="btn-sm" onclick="openListEditor('projectCategories','Project Categories')">Project Categories</button>
+            <button class="btn-sm" onclick="openListEditor('equipTypes','Equipment Types')">Equipment Types</button>
+            <button class="btn-sm" onclick="openListEditor('scopeOpts','Scope of Work')">Scope of Work</button>
+            <button class="btn-sm" onclick="openListEditor('workTypes','Daily Work Types')">Work Types</button>
+            <button class="btn-sm" onclick="openListEditor('expenseTypes','Expense Types')">Expense Types</button>
+          </div>
+        </div>
+        <div class="block" id="userLimitedBlock" style="display:none">
+          <div class="block-title">Your Access</div>
+          <p class="hint-inline" style="display:block">You can create documents under your login and change your own password. Master data &amp; other users are managed by Admin only.</p>
+        </div>
+      </div>
+    </div>
+
+<!-- ITEM PICKER MODAL -->
+<div class="modal-bg" id="pickerModal">
+  <div class="modal picker-modal">
+    <div class="modal-head">
+      <h3 id="pickerTitle">Add Item</h3>
+      <button class="close-btn" onclick="closePicker()">×</button>
+    </div>
+    <div class="modal-body" id="pickerBody"></div>
+    <div class="modal-foot">
+      <button class="btn-ghost dark" onclick="closePicker()">Cancel</button>
+      <button class="btn-main" onclick="confirmAddItem()">Add Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- PREVIEW MODAL -->
+<div class="modal-bg" id="previewModal">
+  <div class="modal preview-modal">
+    <div class="modal-head">
+      <h3 id="prevTitle">Document Preview</h3>
+      <button class="close-btn" onclick="closePreview()">×</button>
+    </div>
+    <div class="modal-body preview-body" id="previewContent"></div>
+    <div class="modal-foot">
+      <button class="btn-ghost dark" onclick="closePreview()">Close</button>
+      <button class="btn-ok" onclick="saveDoc()">💾 Save</button>
+      <button class="btn-main" onclick="dlWord()">Word</button>
+      <button class="btn-main" onclick="dlPDF()">PDF</button>
+      <button class="btn-main" onclick="dlExcel()">Excel</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- FIRST RUN / USER SETUP -->
+<div class="modal-bg" id="userSetupModal">
+  <div class="modal picker-modal" style="max-width:400px">
+    <div class="modal-head"><h3>Welcome — Your Details</h3></div>
+    <div class="modal-body">
+      <p style="font-size:.8rem;color:#64748b;margin-bottom:12px">Please enter your name and designation. This will appear on all offers. You only need to do this once on this computer.</p>
+      <label>Full Name *</label>
+      <input type="text" id="setupName" placeholder="e.g. Husain Abbas" style="margin-bottom:10px">
+      <label>Designation *</label>
+      <input type="text" id="setupDesig" placeholder="e.g. Century Solution" style="margin-bottom:10px">
+      <label>Mobile 1 (optional)</label>
+      <input type="text" id="setupMobile" placeholder="+91 ..." style="margin-bottom:10px">
+      <label>Mobile 2 (optional)</label>
+      <input type="text" id="setupMobile2" placeholder="+91 ..." style="margin-bottom:10px">
+      <label>Email (optional)</label>
+      <input type="text" id="setupEmail" placeholder="email@...">
+    </div>
+    <div class="modal-foot">
+      <button class="btn-main" onclick="saveUserSetup()">Save &amp; Continue</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-bg" id="masterAddModal">
+  <div class="modal picker-modal" style="max-width:480px">
+    <div class="modal-head"><h3 id="masterAddTitle">Add</h3><button class="close-btn" onclick="closeMasterAdd()">×</button></div>
+    <div class="modal-body" id="masterAddBody"></div>
+    <div class="modal-foot">
+      <button class="btn-ghost dark" onclick="closeMasterAdd()">Cancel</button>
+      <button class="btn-main" id="masterAddSaveBtn" onclick="confirmMasterAdd()">Save</button>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="companyModal">
+  <div class="modal picker-modal" style="max-width:440px">
+    <div class="modal-head"><h3>Company Details</h3><button class="close-btn" onclick="closeModalEl('companyModal')">×</button></div>
+    <div class="modal-body">
+      <label>Address</label>
+      <textarea id="setOurAddress" rows="3" style="margin-bottom:8px"></textarea>
+      <label>Phone 1</label>
+      <input id="setOurPhone" style="margin-bottom:8px">
+      <label>Phone 2</label>
+      <input id="setOurPhone2" style="margin-bottom:8px">
+      <label>Email</label>
+      <input id="setOurEmail" style="margin-bottom:8px">
+      <label>GSTIN</label>
+      <input id="setOurGST">
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost dark" onclick="closeModalEl('companyModal')">Cancel</button>
+      <button class="btn-main" onclick="saveCompanySettings()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-bg" id="settingsModal">
+  <div class="modal picker-modal" style="max-width:400px">
+    <div class="modal-head"><h3>Settings — Signatory</h3><button class="close-btn" onclick="closeSettings()">×</button></div>
+    <div class="modal-body">
+      <label>Full Name *</label>
+      <input type="text" id="setName" style="margin-bottom:10px">
+      <label>Designation *</label>
+      <input type="text" id="setDesig" style="margin-bottom:10px">
+      <label>Mobile 1</label>
+      <input type="text" id="setMobile" style="margin-bottom:10px">
+      <label>Mobile 2</label>
+      <input type="text" id="setMobile2" style="margin-bottom:10px">
+      <label>Email</label>
+      <input type="text" id="setEmail">
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost dark" onclick="closeSettings()">Cancel</button>
+      <button class="btn-main" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-bg" id="crmModal">
+  <div class="modal picker-modal" style="max-width:520px">
+    <div class="modal-head"><h3 id="crmTitle">Add Client</h3><button class="close-btn" onclick="closeCRM()">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="crmId">
+      <input type="hidden" id="crmKind">
+      <div class="form-grid">
+        <div class="fg"><label>Code</label><input id="crmCode" readonly style="background:#f1f5f9"></div>
+        <div class="fg"><label id="crmCompanyLbl">Company / Vendor Name *</label><input id="crmCompany"></div>
+        <div class="fg"><label>City</label><input id="crmCity" placeholder="e.g. Lucknow" list="cityDatalist"></div>
+        <div class="fg"><label>PIN Code</label><input id="crmPin" placeholder="6 digit" maxlength="6"></div>
+        <div class="fg"><label>GSTIN</label><input id="crmGST" placeholder="22AAAAA0000A1Z5"></div>
+        <div class="fg"><label>PAN</label><input id="crmPAN" placeholder="Optional"></div>
+        <div class="fg full"><label>Full Address (with PIN)</label><textarea id="crmAddress" rows="2" onchange="autoFillCityPinFromAddress()"></textarea></div>
+        <div class="fg"><label>Email</label><input id="crmEmail" type="email"></div>
+        <div class="fg"><label>Office Phone</label><input id="crmOfficePhone" placeholder="Landline / main"></div>
+        <div class="fg"><label>Website</label><input id="crmWebsite" placeholder="https://"></div>
+        <div class="fg"><label>State</label><input id="crmState" placeholder="e.g. Uttar Pradesh"></div>
+        <datalist id="cityDatalist">
+          <option value="Lucknow"><option value="Kanpur"><option value="Varanasi"><option value="Noida">
+          <option value="Ghaziabad"><option value="Agra"><option value="Meerut"><option value="Prayagraj">
+          <option value="Bareilly"><option value="Gorakhpur"><option value="Unnao"><option value="Delhi">
+          <option value="Mumbai"><option value="Dehradun"><option value="Chandigarh">
+        </datalist>
+        <div class="fg full"><label>Remarks</label><textarea id="crmRemarks" rows="2"></textarea></div>
+      </div>
+      <div id="crmBankBlock" style="display:none;margin-top:12px">
+        <div style="font-weight:700;font-size:.78rem;color:var(--blue);margin-bottom:6px">Bank Details (Vendor)</div>
+        <div class="form-grid">
+          <div class="fg"><label>Account Holder Name</label><input id="crmBankHolder"></div>
+          <div class="fg"><label>Bank Name</label><input id="crmBankName"></div>
+          <div class="fg"><label>Branch</label><input id="crmBankBranch"></div>
+          <div class="fg"><label>Account Number</label><input id="crmBankAcct"></div>
+          <div class="fg"><label>IFSC Code</label><input id="crmBankIFSC" placeholder="SBIN0001234"></div>
+          <div class="fg"><label>Account Type</label>
+            <select id="crmBankType"><option value="">—</option><option>Current</option><option>Savings</option><option>CC</option><option>OD</option></select>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-weight:700;font-size:.78rem">Contact Persons</div>
+      <div id="crmContacts"></div>
+      <button class="btn-sm" style="margin-top:6px" onclick="addCRMContactRow()">+ Contact Person</button>
+      <div id="crmVendorActions" style="display:none;margin-top:12px;padding-top:10px;border-top:1px solid var(--line)">
+        <div style="font-weight:700;font-size:.78rem;margin-bottom:6px">Vendor Registration Form</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <button type="button" class="btn-sm" onclick="exportVendorRegForm('excel')">⬇ Excel Form</button>
+          <button type="button" class="btn-sm" onclick="exportVendorRegForm('word')">⬇ Word Form</button>
+          <button type="button" class="btn-sm" onclick="exportVendorRegForm('pdf')">⬇ PDF Form</button>
+          <label class="btn-sm" style="cursor:pointer">⬆ Upload filled form<input type="file" accept=".xlsx,.xls,.csv,.doc,.docx,.pdf,.txt" hidden onchange="importVendorRegForm(event)"></label>
+        </div>
+        <p class="hint-inline" style="display:block;margin-top:6px">Send the blank form to the vendor; upload filled Excel/Word/PDF to auto-fill fields</p>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost dark" onclick="closeCRM()">Cancel</button>
+      <button class="btn-main" onclick="saveCRM()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="orderModal">
+  <div class="modal" style="max-width:720px;max-height:90vh">
+    <div class="modal-head"><h3 id="orderModalTitle">New Order</h3><button class="close-btn" onclick="closeOrderModal()">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="ordId">
+      <div class="form-grid">
+        <div class="fg"><label>Order No *</label><input id="ordNo"></div>
+        <div class="fg"><label>Order Date *</label><input type="date" id="ordDate"></div>
+        <div class="fg"><label>Linked Offer / PO / PI Ref</label><input id="ordLinkRef" placeholder="Offer or PI ref"></div>
+        <div class="fg"><label>Linked PI No</label><input id="ordLinkPI" placeholder="Auto when Create PI"></div>
+        <div class="fg"><label>Status</label>
+          <select id="ordStatus">
+            <option value="live">Live / In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="onhold">On Hold</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="fg full"><label>Client *</label><input id="ordClient" list="clientDatalist"></div>
+        <div class="fg"><label>Contact Person</label><input id="ordContact"></div>
+        <div class="fg"><label>Mobile</label><input id="ordMobile"></div>
+        <div class="fg full"><label>Project</label><input id="ordProject"></div>
+        <div class="fg full"><label>End Client</label><input id="ordEndClient"></div>
+        <div class="fg full"><label>Site Address</label><textarea id="ordAddress" rows="2"></textarea></div>
+        <div class="fg full"><label>Work Scopes</label>
+          <div class="chips" id="ordScopeChips"></div>
+        </div>
+        <div class="fg full"><label>Order Description / Scope Summary</label><textarea id="ordDesc" rows="2" placeholder="What is ordered…"></textarea></div>
+        <div class="fg"><label>Order Value ₹</label><input type="number" id="ordValue" value="0" min="0" step="0.01"></div>
+        <div class="fg"><label>Planned Start</label><input type="date" id="ordPlanStart"></div>
+        <div class="fg"><label>Planned End</label><input type="date" id="ordPlanEnd"></div>
+        <div class="fg full"><label>Remarks</label><textarea id="ordRemarks" rows="2"></textarea></div>
+      </div>
+      <div style="margin-top:12px" id="ordScheduleSection">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <b style="font-size:.8rem">Execution Schedule &amp; Tracking</b>
+          <button type="button" class="btn-sm" onclick="addOrdSchedRow()">+ Activity</button>
+        </div>
+        <p class="hint-inline" style="display:block;margin-bottom:6px">For Service / Testing / Inspection / Installation etc. — plan date, actual date, status</p>
+        <div id="ordSchedRows"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost dark" onclick="closeOrderModal()">Cancel</button>
+      <button class="btn-main" onclick="saveOrder()">Save Order</button>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="trackModal">
+  <div class="modal" style="max-width:780px;max-height:90vh">
+    <div class="modal-head"><h3 id="trackTitle">Order Tracking</h3><button class="close-btn" onclick="closeTrackModal()">×</button></div>
+    <div class="modal-body" id="trackBody"></div>
+    <div class="modal-foot">
+      <button class="btn-ghost dark" onclick="closeTrackModal()">Close</button>
+      <button class="btn-main" onclick="saveTrackFromModal()">Save Tracking</button>
+    </div>
+  </div>
+</div>
+<input type="file" id="itemMasterFileSettings" accept=".xlsx,.xls,.csv" hidden onchange="importItemMaster(event)">
+
+<div class="modal-bg" id="crmViewModal">
+  <div class="modal picker-modal" style="max-width:520px">
+    <div class="modal-head"><h3 id="crmViewTitle">Details</h3><button class="close-btn" onclick="closeCRMView()">×</button></div>
+    <div class="modal-body" id="crmViewBody"></div>
+    <div class="modal-foot">
+      <button class="btn-ghost dark" onclick="closeCRMView()">Close</button>
+      <button class="btn-main" id="crmViewEditBtn">Edit</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="misFullModal">
+  <div class="modal" style="max-width:640px;max-height:90vh">
+    <div class="modal-head"><h3>Fill Full MIS Details</h3><button class="close-btn" onclick="closeMISFull()">×</button></div>
+    <div class="modal-body">
+      <p class="hint-inline" style="display:block;margin-bottom:8px">Complete any blank fields here — they will appear in the MIS download.</p>
+      <div class="form-grid">
+        <div class="fg"><label>Date of Enq</label><input type="date" id="misFd_enqDate"></div>
+        <div class="fg"><label>Enq Ref No</label><input id="misFd_ref"></div>
+        <div class="fg"><label>Date of Quote</label><input type="date" id="misFd_quoteDate"></div>
+        <div class="fg"><label>Status</label>
+          <input id="misFd_status" list="statusList" placeholder="Quoted / Pending / Lost…">
+          <datalist id="statusList">
+            <option value="Quoted"><option value="Pending"><option value="Lost"><option value="Won">
+            <option value="Under Negotiation"><option value="Cancelled">
+          </datalist>
+        </div>
+        <div class="fg full"><label>Client</label><input id="misFd_client"></div>
+        <div class="fg full"><label>Project</label><input id="misFd_project"></div>
+        <div class="fg full"><label>End Client</label><input id="misFd_endClient"></div>
+        <div class="fg"><label>Enq Type</label><input id="misFd_enqType" placeholder="Supply / Service…"></div>
+        <div class="fg"><label>Quotation ₹</label><input type="number" id="misFd_amount" step="0.01"></div>
+        <div class="fg full"><label>Product</label><input id="misFd_product"></div>
+        <div class="fg"><label>Contact Person</label><input id="misFd_contact"></div>
+        <div class="fg"><label>Contact No</label><input id="misFd_phone"></div>
+        <div class="fg full"><label>Email id</label><input id="misFd_email" type="email"></div>
+        <div class="fg full"><label>Address</label><textarea id="misFd_address" rows="2"></textarea></div>
+        <div class="fg full"><label>Remarks</label><textarea id="misFd_remarks" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost dark" onclick="closeMISFull()">Cancel</button>
+      <button class="btn-main" onclick="saveMISFullDetails()">Save Full Details</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="empModal">
+  <div class="modal" style="max-width:640px;max-height:90vh">
+    <div class="modal-head"><h3 id="empModalTitle">Add Employee</h3><button class="close-btn" onclick="closeEmployeeForm()">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="empId">
+      <div class="form-grid">
+        <div class="fg"><label>Employee Code *</label><input id="empCode" placeholder="Auto if blank"></div>
+        <div class="fg"><label>Full Name *</label><input id="empName"></div>
+        <div class="fg"><label>Designation <button type="button" class="btn-xs" onclick="openListEditor('designations','Designations')">✎</button></label><input id="empDesig" list="dlDesig"></div>
+        <div class="fg"><label>Qualification <button type="button" class="btn-xs" onclick="openListEditor('qualifications','Qualifications')">✎</button></label><input id="empQual" list="dlQual"></div>
+        <div class="fg"><label>Department <button type="button" class="btn-xs" onclick="openListEditor('departments','Departments')">✎</button></label><input id="empDept" list="empDeptList" placeholder="e.g. Marketing"></div>
+        <datalist id="empDeptList">
+          <option value="Marketing"><option value="Projects"><option value="Finance">
+          <option value="HR"><option value="Operations"><option value="Engineering">
+        </datalist>
+        <div class="fg"><label>Mobile 1</label><input id="empMobile"></div>
+        <div class="fg"><label>Mobile 2</label><input id="empMobile2"></div>
+        <div class="fg full"><label>Email</label><input id="empEmail" type="email"></div>
+        <div class="fg"><label>Date of Joining</label><input type="date" id="empDoj"></div>
+        <div class="fg"><label>Status</label>
+          <select id="empStatus"><option value="Active">Active</option><option value="Inactive">Inactive</option><option value="Resigned">Resigned</option></select>
+        </div>
+        <div class="fg full"><label>Residential Address</label><textarea id="empAddress" rows="2"></textarea></div>
+        <div class="fg"><label>City</label><input id="empCity"></div>
+        <div class="fg"><label>PIN</label><input id="empPin" maxlength="6"></div>
+        <div class="fg"><label>Emergency Contact Name</label><input id="empEmgName"></div>
+        <div class="fg"><label>Emergency Mobile</label><input id="empEmgMobile"></div>
+        <div class="fg"><label>Blood Group</label><input id="empBlood" placeholder="e.g. B+"></div>
+        <div class="fg"><label>Aadhaar (optional)</label><input id="empAadhaar"></div>
+        <div class="fg full"><label>Remarks</label><textarea id="empRemarks" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sm" onclick="(function(){ const c=document.getElementById('misFd_client'); if(c&&typeof openCustomer360==='function') openCustomer360(c.value); })()">Customer 360°</button>
+      <button class="btn-sm" onclick="(function(){ if(window._misEditId) viewSavedDoc(window._misEditId); })()">View Doc</button>
+
+      <button class="btn-ghost dark" onclick="closeEmployeeForm()">Cancel</button>
+      <button class="btn-main" onclick="saveEmployee()">Save</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-bg" id="crmPickModal">
+  <div class="modal picker-modal">
+    <div class="modal-head"><h3 id="crmPickTitle">Select Client</h3><button class="close-btn" onclick="closeCRMPick()">×</button></div>
+    <div class="modal-body">
+      <input id="crmPickQ" placeholder="Search name, code, city, GST…" oninput="if(window._pickCRMRender)_pickCRMRender()" style="margin-bottom:8px">
+      <div class="picker-results" id="crmPickList" style="max-height:360px"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost dark" onclick="closeCRMPick()">Cancel</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="auth.js"></script>
+<script src="config.js"></script>
+<script src="persist.js"></script>
+<script src="cloud-sync.js"></script>
+<script src="cloud-db.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="orders.js"></script>
+<script src="erp-link.js"></script>
+<script src="site-projects.js"></script>
+<script src="list-editor.js"></script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+function toggleMobileNav(){
+  document.body.classList.toggle('nav-open');
+}
+function closeMobileNav(){
+  document.body.classList.remove('nav-open');
+}
+(function(){
+  var prev = window.showView;
+  window.showView = function(v){
+    if(typeof prev === 'function') prev(v);
+    closeMobileNav();
+  };
+})();
+</script>
+
+<!-- CUSTOMER 360° -->
+<div class="modal-bg" id="customer360Modal">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-head">
+      <div>
+        <h3 id="c360Title">Customer 360°</h3>
+        <div id="c360Sub" style="font-size:.7rem;opacity:.85;font-weight:400;margin-top:2px"></div>
+      </div>
+      <button class="close-btn" onclick="closeCustomer360()">×</button>
+    </div>
+    <div class="c360-kpis" id="c360Kpis"></div>
+    <div class="c360-tabs">
+      <button type="button" data-c360="profile" class="active" onclick="switchC360Tab('profile')">Profile</button>
+      <button type="button" data-c360="docs" onclick="switchC360Tab('docs')">Documents</button>
+      <button type="button" data-c360="orders" onclick="switchC360Tab('orders')">Orders / Work</button>
+    </div>
+    <div class="modal-body" style="padding-top:10px;max-height:42vh">
+      <div id="c360Tab-profile"><div id="c360Profile"></div></div>
+      <div id="c360Tab-docs" style="display:none"><div id="c360Docs"></div></div>
+      <div id="c360Tab-orders" style="display:none"><div id="c360Orders"></div></div>
+    </div>
+    <div id="c360Actions"></div>
+  </div>
+</div>
+
+
+
+
+<!-- Add Site Engineer from Employees -->
+<div class="modal-bg" id="spAddEngModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head"><h3>Add Site Engineers</h3><button class="close-btn" onclick="closeAddEng()">×</button></div>
+    <div class="modal-body"><p style="font-size:.75rem;color:var(--muted);margin-bottom:8px">Select from Employees (Contacts).</p><div id="spAddEngBody"></div></div>
+    <div class="modal-foot"><button class="btn-ghost" onclick="closeAddEng()">Cancel</button><button class="btn-main" onclick="confirmAddEngineers()">Add Selected</button></div>
+  </div>
+</div>
+
+<!-- Project Allotment / Edit -->
+<div class="modal-bg" id="spProjectModal">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-head"><h3 id="spPfTitle">Allot Project</h3><button class="close-btn" onclick="closeProjectForm()">×</button></div>
+    <div class="modal-body" style="max-height:70vh">
+      <input type="hidden" id="spPfId"><input type="hidden" id="spPfEngId"><input type="hidden" id="spPfOrderId">
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;padding:8px;background:#eef3fb;border-radius:8px">
+        <button type="button" class="btn-sm" onclick="openOrderPickForProject()">📦 From Orders…</button>
+        <span id="spPfOrderLabel" style="font-size:.75rem;color:var(--muted)">Optional — pick a booked order to auto-fill customer / value / dates</span>
+      </div>
+      <div class="block-title" style="margin-top:0">A. Basic Details</div>
+      <div class="form-grid">
+        <div class="fg"><label>Project ID</label><input id="spPfProjectId" readonly></div>
+        <div class="fg"><label>Project Name *</label><input id="spPfName"></div>
+        <div class="fg"><label>Customer</label><input id="spPfCustomer"></div>
+        <div class="fg"><label>Contact Person</label><input id="spPfContact"></div>
+        <div class="fg"><label>Phone</label><input id="spPfPhone"></div>
+        <div class="fg"><label>Email</label><input id="spPfEmail"></div>
+        <div class="fg full"><label>Site Address</label><textarea id="spPfAddress" rows="2"></textarea></div>
+        <div class="fg"><label>Google Location</label><input id="spPfMaps" placeholder="Maps link"></div>
+        <div class="fg"><label>Plant Name</label><input id="spPfPlant"></div>
+        <div class="fg"><label>State</label><input id="spPfState"></div>
+        <div class="fg"><label>Region</label><input id="spPfRegion"></div>
+        <div class="fg"><label>Category <button type="button" class="btn-xs" onclick="openListEditor('projectCategories','Project Categories')" title="Edit list">✎</button></label><select id="spPfCategory">
+          <option>SITC</option><option>Supply Only</option><option>Testing & Commissioning</option><option>Preventive Maintenance</option>
+          <option>Breakdown Maintenance</option><option>AMC</option><option>Overhauling</option><option>Retrofitting</option>
+          <option>Upgradation</option><option>Relay Testing</option><option>Transformer Testing</option><option>GIS Maintenance</option>
+          <option>AIS Maintenance</option><option>RMU Work</option><option>CSS Work</option><option>Panel Work</option><option>Busduct Work</option><option>Other</option>
+        </select></div>
+        <div class="fg"><label>Status</label><select id="spPfStatus"><option>Active</option><option>On Hold</option><option>Closed</option><option>Cancelled</option></select></div>
+      </div>
+      <div class="block-title">C. Equipment <button type="button" class="btn-xs" onclick="openListEditor('equipTypes','Equipment Types')">✎ Types</button></div>
+      <div id="spEquipRows"></div>
+      <button type="button" class="btn-xs" onclick="addEquipRow()">+ Equipment</button>
+      <div class="block-title">D. PO / Commercial</div>
+      <div class="form-grid">
+        <div class="fg"><label>PO Number</label><input id="spPfPoNo"></div>
+        <div class="fg"><label>PO Date</label><input type="date" id="spPfPoDate"></div>
+        <div class="fg"><label>PO Value ₹</label><input type="number" id="spPfPoValue"></div>
+        <div class="fg"><label>Project Value ₹</label><input type="number" id="spPfProjValue"></div>
+        <div class="fg"><label>Payment Terms</label><input id="spPfPayTerms"></div>
+        <div class="fg"><label>Warranty</label><input id="spPfWarranty"></div>
+        <div class="fg"><label>Delivery Date</label><input type="date" id="spPfDelivery"></div>
+        <div class="fg"><label>Completion Date</label><input type="date" id="spPfCompletion"></div>
+      </div>
+      <div class="block-title">E. Scope of Work <button type="button" class="btn-xs" onclick="openListEditor('scopeOpts','Scope of Work')">✎ Edit list</button></div>
+      <div id="spPfScopes"></div>
+      <div class="block-title">F. Assigned Team</div>
+      <div class="form-grid">
+        <div class="fg"><label>Project Manager</label><input id="spPfPM"></div>
+        <div class="fg"><label>Supervisor</label><input id="spPfSupervisor"></div>
+        <div class="fg"><label>Technicians</label><input id="spPfTechnicians"></div>
+        <div class="fg"><label>Helpers</label><input id="spPfHelpers"></div>
+        <div class="fg"><label>Safety Officer</label><input id="spPfSafetyOff"></div>
+        <div class="fg"><label>Vendor</label><input id="spPfVendor"></div>
+        <div class="fg"><label>Contractor</label><input id="spPfContractor"></div>
+      </div>
+      <div class="block-title">G. Materials</div>
+      <div id="spMatRows"></div>
+      <button type="button" class="btn-xs" onclick="addMatRow()">+ Material</button>
+      <div class="block-title">2. Allotment (Office)</div>
+      <div class="form-grid">
+        <div class="fg"><label>Assigned Date</label><input type="date" id="spPfAssignDate"></div>
+        <div class="fg"><label>Reporting Date</label><input type="date" id="spPfReportDate"></div>
+        <div class="fg"><label>Expected Completion</label><input type="date" id="spPfExpected"></div>
+        <div class="fg"><label>Priority <button type="button" class="btn-xs" onclick="openListEditor('priorities','Priorities')">✎</button></label><select id="spPfPriority"><option>High</option><option selected>Medium</option><option>Low</option></select></div>
+        <div class="fg"><label>Workflow Stage</label><select id="spPfWorkflow">
+          <option>Project Created</option><option>Engineer Assigned</option><option>Material Planning</option><option>Site Mobilization</option>
+          <option>Daily Progress</option><option>Testing & Commissioning</option><option>Customer Approval</option><option>Billing</option><option>Project Closure</option>
+        </select></div>
+        <div class="fg"><label>Overall Progress %</label><input type="number" id="spPfProgress" min="0" max="100"></div>
+        <div class="fg full"><label>Instructions</label><textarea id="spPfInstructions" rows="2"></textarea></div>
+        <div class="fg full"><label>Special Instructions</label><textarea id="spPfSpecial" rows="2"></textarea></div>
+        <div class="fg full"><label>Customer Requirements</label><textarea id="spPfCustReq" rows="2"></textarea></div>
+        <div class="fg"><label>Permit Requirement</label><input id="spPfPermit"></div>
+        <div class="fg"><label>Shutdown Timing</label><input id="spPfShutdown"></div>
+        <div class="fg"><label>Working Hours</label><input id="spPfHours"></div>
+        <div class="fg full"><label>Safety Notes</label><textarea id="spPfSafety" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn-ghost" onclick="closeProjectForm()">Cancel</button><button class="btn-main" onclick="saveProject()">Save Project</button></div>
+  </div>
+</div>
+
+<!-- Daily Site Report -->
+<div class="modal-bg" id="spDailyModal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-head"><h3 id="spDailyTitle">Daily Site Report</h3><button class="close-btn" onclick="closeDailyForm()">×</button></div>
+    <div class="modal-body" style="max-height:70vh">
+      <input type="hidden" id="spDailyProjId"><input type="hidden" id="spDailyLogId">
+      <div class="form-grid">
+        <div class="fg"><label>Date</label><input type="date" id="spDDate"></div>
+        <div class="fg"><label>Shift</label><select id="spDShift"><option>General</option><option>Morning</option><option>Evening</option><option>Night</option></select></div>
+        <div class="fg"><label>Work Type <button type="button" class="btn-xs" onclick="openListEditor('workTypes','Work Types')" title="Edit list">✎</button></label><select id="spDWorkType">
+          <option>Installation</option><option>Testing</option><option>Cable Laying</option><option>Commissioning</option>
+          <option>Overhauling</option><option>Breakdown</option><option>Inspection</option><option>Cleaning</option>
+          <option>Repair</option><option>Replacement</option><option>Others</option>
+        </select></div>
+        <div class="fg full"><label>Work Description</label><textarea id="spDDesc" rows="3" placeholder="e.g. Completed installation of 11kV VCB…"></textarea></div>
+        <div class="fg"><label>Overall Project Progress %</label><input type="number" id="spDOverall" min="0" max="100"></div>
+        <div class="fg"><label>Today Progress %</label><input type="number" id="spDToday" min="0" max="100"></div>
+        <div class="fg full"><label>Equipment Worked On</label><input id="spDEquip" placeholder="Panel / Transformer / VCB / GIS bay no."></div>
+        <div class="fg"><label>Engineers</label><input type="number" id="spDEng" min="0"></div>
+        <div class="fg"><label>Supervisors</label><input type="number" id="spDSup" min="0"></div>
+        <div class="fg"><label>Technicians</label><input type="number" id="spDTech" min="0"></div>
+        <div class="fg"><label>Helpers</label><input type="number" id="spDHelp" min="0"></div>
+        <div class="fg"><label>Start Time</label><input type="time" id="spDStart"></div>
+        <div class="fg"><label>End Time</label><input type="time" id="spDEnd"></div>
+        <div class="fg full"><label>Tests Performed</label><input id="spDTests" placeholder="IR, Contact Resistance, Timing…"></div>
+        <div class="fg"><label>Test Result</label><select id="spDTestResult"><option>Pass</option><option>Fail</option><option>Observation</option></select></div>
+        <div class="fg"><label>PPE Used</label><select id="spDPPE"><option>Yes</option><option>No</option></select></div>
+        <div class="fg"><label>Permit Available</label><select id="spDPermit"><option>Yes</option><option>No</option></select></div>
+        <div class="fg full"><label>Safety Notes</label><textarea id="spDSafety" rows="2"></textarea></div>
+        <div class="fg full"><label>Issues Faced</label><input id="spDIssues" placeholder="Material Delay / Shutdown / Rain…"></div>
+        <div class="fg full"><label>Requirement from Office</label><input id="spDReq" placeholder="Need Material / Spare / Drawing…"></div>
+        <div class="fg full"><label>Tomorrow Plan</label><textarea id="spDTomorrow" rows="2"></textarea></div>
+        <div class="fg"><label>Customer Name</label><input id="spDCustName"></div>
+        <div class="fg"><label>Customer Designation</label><input id="spDCustDesig"></div>
+        <div class="fg full"><label>Remarks</label><textarea id="spDRemarks" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn-ghost" onclick="closeDailyForm()">Cancel</button><button class="btn-main" onclick="saveDaily()">Save Daily Report</button></div>
+  </div>
+</div>
+
+<!-- Near Miss -->
+<div class="modal-bg" id="spNearModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head"><h3 style="color:#fecaca">Near Miss Report</h3><button class="close-btn" onclick="closeNearMiss()">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="spNmProjId">
+      <div class="form-grid">
+        <div class="fg"><label>Date</label><input type="date" id="spNmDate"></div>
+        <div class="fg"><label>Severity</label><select id="spNmSeverity"><option>Low</option><option selected>Medium</option><option>High</option><option>Critical</option></select></div>
+        <div class="fg full"><label>Location</label><input id="spNmLocation"></div>
+        <div class="fg full"><label>Description *</label><textarea id="spNmDesc" rows="3" placeholder="What almost went wrong?"></textarea></div>
+        <div class="fg full"><label>Persons Involved</label><input id="spNmPersons"></div>
+        <div class="fg full"><label>Corrective Action</label><textarea id="spNmAction" rows="2"></textarea></div>
+        <div class="fg"><label>Status</label><select id="spNmStatus"><option>Open</option><option>Closed</option><option>Under Review</option></select></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn-ghost" onclick="closeNearMiss()">Cancel</button><button class="btn-main" onclick="saveNearMiss()">Save Near Miss</button></div>
+  </div>
+</div>
+
+
+<div class="modal-bg" id="listEditModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head"><h3 id="listEditTitle">Edit list</h3><button class="close-btn" onclick="closeListEditor()">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="listEditName">
+      <div id="listEditBody"></div>
+      <div style="display:flex;gap:6px;margin-top:12px">
+        <input id="listEditNew" placeholder="New item…" style="flex:1" onkeydown="if(event.key==='Enter'){confirmAddListItem();event.preventDefault();}">
+        <button class="btn-main" onclick="confirmAddListItem()">Add</button>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn-ghost" onclick="closeListEditor()">Done</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="userEmpPickModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-head"><h3>Select Employee</h3><button class="close-btn" onclick="closeUserEmpPick()">×</button></div>
+    <div class="modal-body"><div id="userEmpPickBody"></div></div>
+    <div class="modal-foot"><button class="btn-ghost" onclick="closeUserEmpPick()">Cancel</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="orderPickProjModal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-head"><h3>Select Order for Project</h3><button class="close-btn" onclick="closeOrderPickProj()">×</button></div>
+    <div class="modal-body"><div id="orderPickProjBody"></div></div>
+    <div class="modal-foot"><button class="btn-ghost" onclick="closeOrderPickProj()">Cancel</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="emp360Modal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-head"><h3>Employee 360°</h3><button class="close-btn" onclick="closeEmp360()">×</button></div>
+    <div class="modal-body" id="emp360Body"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="peViewerModal">
+  <div class="modal" style="max-width:800px">
+    <div class="modal-head"><h3 id="peViewerTitle">Report</h3><button class="close-btn" onclick="closePEViewer()">×</button></div>
+    <div class="modal-body" id="peViewerBody" style="max-height:65vh;overflow:auto;background:#fff;padding:16px;font-family:Georgia,serif;font-size:10.5pt"></div>
+    <div class="modal-foot" style="flex-wrap:wrap;gap:8px">
+      <button class="btn-ghost" onclick="closePEViewer()">Close</button>
+      <button class="btn-sm" onclick="peExportPDF()">🖨 Print / PDF</button>
+      <button class="btn-sm" onclick="peExportWord()">⬇ Word</button>
+      <button class="btn-sm" onclick="peExportExcel()">⬇ Excel</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

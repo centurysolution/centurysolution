@@ -1,0 +1,127 @@
+CENTURY SOLUTION v13 — Bahut Simple Guide (Layman)
+==================================================
+
+Ye software ek website jaisa folder hai.
+Isme "index.html" naam ki file login page hai.
+
+
+--------------------------------------------------
+A. EK COMPUTER PAR USE KARNA (Sabse aasan)
+--------------------------------------------------
+1. ZIP file extract (unzip) karein.
+2. Folder kholen.
+3. "index.html" par double-click karein
+   YA Chrome me drag karke chhod dein.
+4. Login page aa jayega.
+
+Login (Admin):
+  User ID  : husain@centurysolution.co.in
+  Password : Husain@122050
+
+5. Jo data aap save karte ho wo USI computer + USI browser
+   me rehta hai (Chrome recommend).
+
+
+--------------------------------------------------
+B. GOOGLE DRIVE / ONEDRIVE PAR RAKHNA
+--------------------------------------------------
+Drive / OneDrive "folder store" karne ke liye best hai.
+Wahan se seedha website chalana Google allow nahi karta
+(security ki wajah se). Isliye 2 simple tareeke:
+
+TARIKA 1 — File store + har PC par copy
+  1. Poora CENTURY SOLUTION folder Google Drive me upload.
+  2. Har computer par Drive se folder Download / Sync karein.
+  3. Us folder me index.html kholen.
+  4. Data share karne ke liye:
+       Settings → Export Team Package
+       → JSON file Drive me upload
+       → Doosra user Download karke
+         Settings → Import Team Package
+
+TARIKA 2 — Sirf data package Drive par
+  1. App folder har device par alag copy.
+  2. Shared data sirf Team Package JSON se sync.
+
+
+--------------------------------------------------
+C. SERVER PAR DALNA (Office / Company server)
+--------------------------------------------------
+Agar aapke paas company server / hosting hai:
+
+1. Poora folder (index.html + saari files) server par copy.
+2. Browser me kholen:
+     http://your-server-address/century-solution/
+3. Login page seedha khulega.
+
+Free hosting bhi use kar sakte ho (example):
+  - Netlify Drop (netlify.com/drop) — folder drag-drop
+  - Cloudflare Pages
+  - GitHub Pages
+
+Phir link sabko bhej do. Har koi browser se kholega.
+
+
+--------------------------------------------------
+D. ALAG-ALAG DEVICE SE LOGIN (Phone / Laptop / Office)
+--------------------------------------------------
+
+IMPORTANT SAMJHO:
+  Browser me data "memory" me save hota hai.
+  Alag device = alag memory.
+  Isliye data same rakhne ke liye Team Package use karo.
+
+STEP-BY-STEP (Team):
+
+1. Admin apne computer par kaam kare, data bhare.
+2. Settings → "Export Team Package" dabaye.
+3. Jo JSON file bani, use Google Drive / OneDrive /
+   WhatsApp / Email se team ko bheje.
+4. Doosre device par:
+   - Pehle app folder kholen (index.html)
+   - Login karein (admin ne jo User ID diya ho)
+   - Settings → "Import Team Package"
+   - Wahi JSON file choose karein
+5. Ab unke device par bhi wahi clients, employees,
+   orders, projects dikhenge.
+
+Naya user kaise banaye (Admin):
+  Settings → User Management
+  → Employee se select YA naya User ID + Password
+  → Create User
+  Us ID/Password se doosra person login karega.
+
+
+--------------------------------------------------
+E. MOBILE SE
+--------------------------------------------------
+1. Phone me folder copy karein YA server link kholen.
+2. Chrome se index.html / website link.
+3. Menu → "Add to Home Screen" (app jaisa icon).
+4. Login same User ID + Password se.
+
+
+--------------------------------------------------
+F. DATA SAFE RAKHNE KE NIYAM
+--------------------------------------------------
+1. Hafte me 1 baar Settings → Download Full Backup
+   YA Export Team Package.
+2. Backup file Drive me rakh do.
+3. Hamesha SAME browser use karein (Chrome best).
+4. Browser data / history "Clear" mat karo —
+   warna local data chala jayega (isliye backup zaroori).
+
+
+--------------------------------------------------
+G. SHORT SUMMARY
+--------------------------------------------------
+• Login page = index.html
+• 1 PC = seedha khol do
+• Drive = files + Team Package store
+• Server / Netlify = link se duniya bhar se kholo
+• Alag devices = Team Package se data sync
+• Har user ki apni login (Admin banata hai)
+
+Support login (owner):
+  husain@centurysolution.co.in
+  Husain@122050

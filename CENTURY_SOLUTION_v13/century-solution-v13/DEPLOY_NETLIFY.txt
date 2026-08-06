@@ -1,0 +1,42 @@
+CENTURY SOLUTION — Netlify par aise daalo ki users online save + login hon
+========================================================================
+
+Netlify DROP (sirf drag-drop) functions support NAHI karta.
+Isliye yeh tareeka use karo (ek baar, free):
+
+METHOD 1 — Netlify CLI (recommended)
+------------------------------------
+1. Computer par Node.js install ho (https://nodejs.org LTS)
+2. Is folder me Terminal/PowerShell kholo
+3. Commands:
+
+   npm install
+   npx netlify login
+   npx netlify deploy --prod --dir=.
+
+4. Link milega: https://something.netlify.app
+5. Browser me kholo → Admin login
+6. Settings → User banao
+7. Doosri device / phone se wahi link → user login
+
+Shared database Netlify Blobs par auto chalega — Supabase optional.
+
+
+METHOD 2 — GitHub + Netlify (bina CLI ke)
+-----------------------------------------
+1. Folder ko GitHub repo me upload
+2. https://app.netlify.com → Add new site → Import from Git
+3. Repo select → Deploy
+4. Site link se use karo
+
+
+TEST
+----
+1. Admin se user create
+2. Incognito / doosra phone → login same id/password
+3. Chalna chahiye
+
+
+Admin login:
+husain@centurysolution.co.in
+Husain@122050

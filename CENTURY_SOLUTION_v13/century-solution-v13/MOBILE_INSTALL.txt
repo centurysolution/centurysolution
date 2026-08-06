@@ -1,0 +1,23 @@
+CENTURY SOLUTION — Mobile / Android
+====================================
+
+OPTION A — Install as App (Recommended, no APK store needed)
+-----------------------------------------------------------
+1. Phone pe Chrome se index.html kholen (ya folder ko phone pe copy karke
+   "Local HTTP Server" / "Simple HTTP Server" app se host karein)
+   
+   Ya: computer pe folder serve karein:
+     npx --yes serve -p 8080
+   Phir phone same WiFi pe: http://COMPUTER-IP:8080
+
+2. Chrome menu → "Add to Home screen" / "Install app"
+3. Home screen pe CENTURY SOLUTION icon aayega — full screen app jaisa chalega
+4. Offline bhi kaam karega (PWA cache)
+
+OPTION B — Android APK (WebView wrapper)
+----------------------------------------
+Is package mein android-webview-project/ folder hai.
+Android Studio se open karke Build → Build APK.
+
+Ya phone pe PWA install karna sabse smooth + safe hai (same features).
+

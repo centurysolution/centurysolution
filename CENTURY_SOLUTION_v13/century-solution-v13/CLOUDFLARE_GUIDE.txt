@@ -1,0 +1,99 @@
+CENTURY SOLUTION v13 — Cloudflare Pages (free) — Layman steps
+================================================================
+
+What you get
+------------
+- App online: https://your-site.pages.dev
+- Anyone with the link can open the login page
+- Shared users/data: free Supabase + config.js (same idea as Netlify)
+
+
+================================================
+STEP 1 — Free Cloudflare account
+================================================
+1. Open: https://dash.cloudflare.com/sign-up
+2. Sign up with email (free)
+3. Verify email if asked
+
+
+================================================
+STEP 2 — Create Pages project + upload folder
+================================================
+1. Login: https://dash.cloudflare.com
+2. Left menu → Workers & Pages
+3. Click "Create" → "Pages" → "Upload assets"
+   (sometimes labelled "Direct Upload")
+4. Project name: century-solution (or any name)
+5. Upload the FULL folder contents
+   - Best: select all files INSIDE century-solution-v13
+     (index.html must be at the root of the upload)
+6. Click Deploy
+7. Wait 1–2 minutes
+8. You get a link like:
+   https://century-solution-xxxx.pages.dev
+
+
+================================================
+STEP 3 — Shared database (so other devices can login)
+================================================
+Cloudflare hosts the website only. Users are stored in Supabase.
+
+A) Supabase (one time, free)
+   1. https://supabase.com → New Project
+   2. SQL Editor → Run:
+
+create table if not exists public.cs_store (
+  key text primary key,
+  value text not null,
+  updated_at timestamptz default now()
+);
+alter table public.cs_store enable row level security;
+create policy "allow all anon" on public.cs_store
+  for all using (true) with check (true);
+
+   3. Project Settings → API
+      Copy: Project URL + anon public key
+
+B) Put keys in config.js
+   Open config.js in Notepad:
+
+var CS_CLOUD_DEFAULTS = {
+  url: 'https://YOUR.supabase.co',
+  key: 'eyJYOUR_ANON_KEY'
+};
+
+   Save.
+
+C) Upload AGAIN to Cloudflare Pages
+   Workers & Pages → your project → Create deployment →
+   Upload assets again (with updated config.js)
+
+D) Open your pages.dev link → Admin login
+   Settings → Push (Upload data)
+   Create users in Settings
+
+E) Other phone/laptop
+   Same link → user ID + password → Login
+
+
+================================================
+STEP 4 — Daily use
+================================================
+- Create/edit user → Settings → Push
+- New device → open link → login (cloud loads users)
+- Optional: Pull to refresh all data
+
+
+================================================
+Admin login
+================================================
+User ID:  husain@centurysolution.co.in
+Password: Husain@122050
+
+
+================================================
+Tips
+================================================
+- index.html must be at the ROOT of the upload (not inside another folder)
+- After changing config.js, always redeploy/upload
+- Custom domain later: Pages → Custom domains (optional)

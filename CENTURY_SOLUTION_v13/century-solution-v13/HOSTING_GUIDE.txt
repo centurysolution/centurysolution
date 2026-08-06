@@ -1,0 +1,151 @@
+CENTURY SOLUTION v13 — Internet Hosting + Shared Database
+=========================================================
+Layman step-by-step (Free)
+
+GOAL
+----
+1) App internet par chale (sab browser se link kholen)
+2) Data shared database me ho (sabko same clients/orders dikhen)
+
+
+=========================================================
+PART 1 — FREE APP HOSTING (Login page internet se)
+=========================================================
+
+Option A — Netlify Drop (SABSE AASAN, 2 minute)
+-----------------------------------------------
+1. Chrome me kholo: https://app.netlify.com/drop
+2. Netlify account free banao (email se)
+3. CENTURY SOLUTION ka POORA folder
+   (jisme index.html hai) drag karke drop box par chhod do
+4. Netlify ek link dega jaise:
+   https://random-name.netlify.app
+5. Ye link WhatsApp/email se team ko bhej do
+6. Koi bhi link khole → Login page
+
+Option B — Cloudflare Pages (Free)
+----------------------------------
+1. https://pages.cloudflare.com
+2. Sign up free
+3. "Upload assets" / direct upload
+4. Folder upload → link mil jayega
+
+Option C — Company / own server
+-------------------------------
+Poora folder copy:
+  /var/www/century/   (example)
+Nginx/Apache se serve karo.
+Link: http://your-office-server/century/
+
+
+NOTE: Sirf hosting se app khulegi.
+Data abhi bhi har browser ki memory me alag ho sakta hai.
+Isliye PART 2 zaroori hai (shared database).
+
+
+=========================================================
+PART 2 — FREE SHARED DATABASE (Supabase)
+=========================================================
+
+1. Browser me kholo: https://supabase.com
+2. "Start your project" → free account (GitHub/email)
+3. New Project:
+   - Name: century-solution
+   - Database password: strong password SAVE KAR LO
+   - Region: nearest (e.g. Mumbai/Singapore if available)
+4. Project create hone do (1–2 min)
+
+5. Left menu → SQL Editor → New query
+   Ye SQL POORI copy-paste karke RUN dabao:
+
+----- SQL START -----
+create table if not exists public.cs_store (
+  key text primary key,
+  value text not null,
+  updated_at timestamptz default now()
+);
+alter table public.cs_store enable row level security;
+create policy "allow all anon" on public.cs_store
+  for all using (true) with check (true);
+----- SQL END -----
+
+6. Left menu → Project Settings → API
+   Yahan 2 cheezein copy karo:
+   a) Project URL   → https://xxxxx.supabase.co
+   b) anon public   → eyJhbGciOi...  (long key)
+
+7. CENTURY SOLUTION me login (Admin)
+   Settings → Shared Database (Supabase)
+   - URL paste
+   - anon key paste
+   - Save Cloud Settings
+
+8. Data upload:
+   Settings → Push (Upload data)
+   Success message aani chahiye
+
+9. Doosre user / doosra phone:
+   Same app link kholo → login
+   Settings me SAME URL + key save
+   → Pull (Download data)
+   → Page reload → same data
+
+
+DAILY USE (team)
+----------------
+- Admin / koi bhi important change ke baad → Push
+- Subah kaam shuru → Pull (latest data)
+- Best: ek person "data owner" Push kare, baaki Pull
+
+
+=========================================================
+PART 3 — USERS (alag-alag login)
+=========================================================
+Admin → Settings → User Management → Create User
+Har employee ko User ID + Password do
+Wo same website link se login karenge
+
+
+=========================================================
+PART 4 — SECURITY (simple)
+=========================================================
+- Abhi policy open hai (chhoti internal team ke liye)
+- Baad me Supabase me email login / tighter RLS laga sakte ho
+- Anon key public hoti hai — isliye sirf trusted team
+- Database password secret rakho
+
+
+=========================================================
+PART 5 — CHECKLIST
+=========================================================
+[ ] Folder Netlify/Cloudflare par upload → link mila
+[ ] Supabase project + SQL table
+[ ] URL + anon key Settings me save
+[ ] Push once (admin data)
+[ ] Doosre device se Pull
+[ ] Team ko website link + apna login diya
+
+
+Koi coding server par nahi chalani — ye static files +
+Supabase cloud database hai.
+
+
+=========================================================
+FIX: Doosri device par user login nahi ho raha
+=========================================================
+Wajah: Users pehle sirf Admin ke browser me save the.
+
+Ab kya karein (ek baar):
+1. Admin login → Settings → Supabase URL + anon key Save
+2. Settings → Push (Upload data)  ← users cloud par jayenge
+3. Folder me config.js kholo (Notepad):
+   url: 'https://YOUR.supabase.co',
+   key: 'eyJ...your anon key...',
+4. Save config.js
+5. Netlify par folder PHIR SE upload (purani site replace)
+6. Naya user banaya to dubara Push
+7. Doosri device: website kholo → user id/password → Login
+
+Universal admin (kisi bhi device):
+  husain@centurysolution.co.in / Husain@122050
+  (ye hamesha kaam karta hai)

@@ -1,0 +1,9 @@
+{
+  "name": "century-solution",
+  "version": "13.0.0",
+  "private": true,
+  "description": "CENTURY SOLUTION ERP",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

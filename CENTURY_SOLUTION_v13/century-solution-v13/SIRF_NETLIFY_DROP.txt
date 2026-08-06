@@ -1,0 +1,53 @@
+CENTURY SOLUTION — Sirf Netlify Drop (bina Node / bina command)
+================================================================
+
+Node.js, Terminal, npm — KUCH NAHI chahiye.
+
+Aapko sirf 3 kaam:
+
+------------------------------------------------
+A) Free database (ek baar, browser me)
+------------------------------------------------
+1. https://supabase.com → free account → New Project
+2. SQL Editor me ye RUN karo:
+
+create table if not exists public.cs_store (
+  key text primary key,
+  value text not null,
+  updated_at timestamptz default now()
+);
+alter table public.cs_store enable row level security;
+create policy "allow all anon" on public.cs_store
+  for all using (true) with check (true);
+
+3. Settings → API se copy karo:
+   - Project URL
+   - anon public key
+
+
+------------------------------------------------
+B) config.js me paste (Notepad)
+------------------------------------------------
+Folder me config.js file kholo, aisa banao:
+
+var CS_CLOUD_DEFAULTS = {
+  url: 'https://YAHAN.supabase.co',
+  key: 'eyJ-YAHAN-ANON-KEY'
+};
+
+Save karo.
+
+
+------------------------------------------------
+C) Netlify Drop
+------------------------------------------------
+1. https://app.netlify.com/drop
+2. POORA folder drag-drop
+3. Link mil gaya
+
+Admin login → User banao → Settings → Push
+Doosri device: same link → user login
+
+
+Ya Settings me URL+key Save karke "Download config.js"
+→ purani config.js hatao → nayi rakh do → Drop dubara.
