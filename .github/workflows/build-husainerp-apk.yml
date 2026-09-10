@@ -1,0 +1,44 @@
+name: Build HusainERP APK
+on:
+  push:
+    branches: [ husainerp-apk-build ]
+    paths:
+      - 'husainerp-build/**'
+      - '.github/workflows/build-husainerp-apk.yml'
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Android source
+        run: |
+          mkdir -p /tmp/husainerp-src
+          base64 -d husainerp-build/source-small.b64 > /tmp/husainerp-src.zip
+          unzip -q /tmp/husainerp-src.zip -d /tmp/husainerp-src
+          cd CENTURY_SOLUTION_v13
+          zip -qr /tmp/husainerp-src/app/src/main/assets/erp_bundle.zip .
+          test -s /tmp/husainerp-src/app/src/main/assets/erp_bundle.zip
+          unzip -t /tmp/husainerp-src/app/src/main/assets/erp_bundle.zip
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Build APK
+        working-directory: /tmp/husainerp-src
+        run: gradle --no-daemon assembleDebug
+      - name: Prepare APK
+        run: cp /tmp/husainerp-src/app/build/outputs/apk/debug/app-debug.apk HusainERP.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HusainERP-APK
+          path: HusainERP.apk
+          if-no-files-found: error
