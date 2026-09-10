@@ -12,7 +12,7 @@ jobs:
         run: |
           rm -rf build-src
           mkdir -p build-src
-          base64 -d husainerp-build/source-small.b64 > source.zip
+          cat husainerp-build/srcpart1a.b64 husainerp-build/srcpart1b.b64 husainerp-build/srcpart2.b64 husainerp-build/srcpart3.b64 husainerp-build/srcpart4.b64 | base64 -d > source.zip
           unzip -t source.zip
           unzip -q source.zip -d build-src
           sed -i 's/minSdk 26/minSdk 23/' build-src/app/build.gradle
@@ -43,7 +43,6 @@ jobs:
         run: |
           cp build-src/app/build/outputs/apk/debug/app-debug.apk HusainERP.apk
           unzip -t HusainERP.apk
-          test -s HusainERP.apk
           $ANDROID_HOME/build-tools/35.0.0/apksigner verify --verbose HusainERP.apk
       - uses: actions/upload-artifact@v4
         with:
