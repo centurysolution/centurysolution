@@ -10,19 +10,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Prepare Android source
         run: |
-          rm -rf build-src
-          mkdir -p build-src
-          cat husainerp-build/srcpart1a.b64 husainerp-build/srcpart1b.b64 husainerp-build/srcpart2.b64 husainerp-build/srcpart3.b64 husainerp-build/srcpart4.b64 | base64 -d > source.zip
+          rm -rf build-src placeholder source.zip
+          mkdir -p build-src placeholder
+          base64 -d husainerp-build/source-v110.b64 > source.zip
           unzip -t source.zip
           unzip -q source.zip -d build-src
-          sed -i 's/minSdk 26/minSdk 23/' build-src/app/build.gradle
-          sed -i 's/versionCode 1/versionCode 2/' build-src/app/build.gradle
-          sed -i "s/versionName '1.0.0'/versionName '1.0.1'/" build-src/app/build.gradle
           mkdir -p build-src/app/src/main/assets
-          rm -f build-src/app/src/main/assets/erp_bundle.zip
-          cd CENTURY_SOLUTION_v13
-          zip -qr ../build-src/app/src/main/assets/erp_bundle.zip .
-          cd ..
+          printf '<!doctype html><meta charset="utf-8"><title>HusainERP</title><h1>HusainERP</h1>' > placeholder/index.html
+          (cd placeholder && zip -q ../build-src/app/src/main/assets/erp_bundle.zip index.html)
           test -s build-src/app/src/main/assets/erp_bundle.zip
           unzip -t build-src/app/src/main/assets/erp_bundle.zip
       - uses: actions/setup-java@v4
@@ -37,15 +32,16 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.11.1'
-      - name: Build installable APK
+      - name: Build base APK
         run: gradle -p build-src --no-daemon assembleDebug
-      - name: Verify APK
+      - name: Verify base APK
         run: |
-          cp build-src/app/build/outputs/apk/debug/app-debug.apk HusainERP.apk
-          unzip -t HusainERP.apk
-          $ANDROID_HOME/build-tools/35.0.0/apksigner verify --verbose HusainERP.apk
+          cp build-src/app/build/outputs/apk/debug/app-debug.apk HusainERP-base-v110.apk
+          unzip -t HusainERP-base-v110.apk
+          $ANDROID_HOME/build-tools/35.0.0/apksigner verify --verbose HusainERP-base-v110.apk
+          $ANDROID_HOME/build-tools/35.0.0/aapt dump badging HusainERP-base-v110.apk | head -5
       - uses: actions/upload-artifact@v4
         with:
-          name: HusainERP-Installable
-          path: HusainERP.apk
+          name: HusainERP-Base-v110
+          path: HusainERP-base-v110.apk
           if-no-files-found: error
